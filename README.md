@@ -14,6 +14,7 @@
 
 ## Table of Contents
 
+- [Demo Video](#-demo-video)
 - [Problem Statement](#-problem-statement)
 - [Persona & Target Users](#-persona--target-users)
 - [Use Case Diagram](#-use-case-diagram)
@@ -31,6 +32,18 @@
 - [Demo Video](#-2-minute-demo-video)
 - [Getting Started](#-getting-started)
 - [Team](#-team-hats)
+
+---
+
+## Demo Video
+
+<div align="center">
+
+https://github.com/shan52100/guidewire-teamHATS/raw/main/InShot_20260320_232335057.mp4
+
+</div>
+
+> **Strategy:** Build a trust-first parametric insurance system where the default is to pay honest riders fast, and fraud detection works in the background to catch bad actors without creating friction.
 
 ---
 
