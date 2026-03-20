@@ -868,13 +868,11 @@ python -m pytest tests/ -v --cov=src
 
 Built with passion for the **Guidewire Hackathon 2026**.
 
-| Member | Role |
-|---|---|
-| **Harini V** | Backend & AI/ML Pipeline |
-| **Arun Raj** | LangGraph Agent Orchestration & Domain Expert (Zepto Rider) |
-| **Tejaswini** | Frontend & Dashboard |
-| **Shanmugapriyan** | System Architecture & Integration |
-| **Achudhan A** | Testing & Fraud Detection Logic |
+- **Harini V**
+- **Arun Raj**
+- **Tejaswini**
+- **Shanmugapriyan**
+- **Achudhan A**
 
 ---
 
