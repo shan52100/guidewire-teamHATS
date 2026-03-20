@@ -1,2 +1,6 @@
 from .schemas import *
-from .database import *
+
+try:
+    from .database import *
+except ImportError:
+    pass

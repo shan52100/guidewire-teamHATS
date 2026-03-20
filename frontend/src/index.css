@@ -1,0 +1,751 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   InsureFlow AI - Global Styles
+   Clean modern design with dark navbar, white content, responsive grid.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Reset & Base ─────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  background-color: #f1f5f9;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+/* ── App Layout ───────────────────────────────────────────────────────────── */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Navbar ────────────────────────────────────────────────────────────────── */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 0 32px;
+  height: 60px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+}
+
+.navbar-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.navbar-links {
+  display: flex;
+  list-style: none;
+  gap: 4px;
+}
+
+.navbar-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.navbar-link:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.navbar-link--active {
+  color: #fff;
+  background: rgba(99, 102, 241, 0.2);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-role {
+  font-size: 13px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ── Page ──────────────────────────────────────────────────────────────────── */
+.page {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.page__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.page__subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.page__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Metric Cards ─────────────────────────────────────────────────────────── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.15s ease;
+}
+
+.metric-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.metric-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.metric-card__icon {
+  font-size: 20px;
+}
+
+.metric-card__title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.metric-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.metric-card__change {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 6px;
+  color: #64748b;
+}
+
+.metric-card__change--positive {
+  color: #10b981;
+}
+
+.metric-card__change--negative {
+  color: #ef4444;
+}
+
+/* ── Chart Cards ──────────────────────────────────────────────────────────── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.chart-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+/* ── Data Table ───────────────────────────────────────────────────────────── */
+.table-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.data-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.cell--mono {
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  font-size: 13px;
+}
+
+.cell--muted {
+  color: #94a3b8;
+}
+
+/* ── Severity Bar ─────────────────────────────────────────────────────────── */
+.severity-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.severity-bar {
+  height: 6px;
+  border-radius: 3px;
+  min-width: 20px;
+  max-width: 80px;
+}
+
+.severity-bar--low {
+  background: #10b981;
+}
+
+.severity-bar--medium {
+  background: #f59e0b;
+}
+
+.severity-bar--high {
+  background: #ef4444;
+}
+
+.severity-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.severity--low { color: #10b981; }
+.severity--medium { color: #f59e0b; }
+.severity--high { color: #ef4444; }
+
+/* ── Status Badge ─────────────────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.status-badge--sm {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.status-badge--md {
+  font-size: 12px;
+}
+
+.status-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Fraud Queue ──────────────────────────────────────────────────────────── */
+.fraud-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fraud-card {
+  background: #fff;
+  border-radius: 12px;
+  border-left: 4px solid #f97316;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: opacity 0.2s ease;
+}
+
+.fraud-card--resolved {
+  opacity: 0.6;
+  border-left-color: #94a3b8;
+}
+
+.fraud-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.fraud-card__id-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fraud-card__id {
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.fraud-card__score {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.fraud-score--critical {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.fraud-score--high {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.fraud-score--medium {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.fraud-card__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.fraud-card__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.fraud-card__label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.fraud-card__signal-list {
+  list-style: none;
+  margin-top: 8px;
+}
+
+.fraud-card__signal-item {
+  font-size: 13px;
+  color: #dc2626;
+  padding: 4px 0 4px 16px;
+  position: relative;
+}
+
+.fraud-card__signal-item::before {
+  content: "!";
+  position: absolute;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 50%;
+  top: 5px;
+}
+
+.fraud-card__actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn--approve {
+  background: #10b981;
+  color: #fff;
+}
+
+.btn--approve:hover {
+  background: #059669;
+}
+
+.btn--reject {
+  background: #fff;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+}
+
+.btn--reject:hover {
+  background: #fef2f2;
+}
+
+/* ── Filter Select ────────────────────────────────────────────────────────── */
+.filter-select {
+  padding: 8px 32px 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* ── Zone Cards ───────────────────────────────────────────────────────────── */
+.zone-legend {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.zone-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.zone-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.zone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.zone-card {
+  background: #fff;
+  border-radius: 12px;
+  border-top: 4px solid;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.zone-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.zone-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.zone-card__name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.zone-card__risk {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.zone-card__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.zone-card__stat-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.zone-card__stat-label {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+.zone-card__coords {
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  text-align: center;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ── Claim Card ───────────────────────────────────────────────────────────── */
+.claim-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.claim-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.claim-card__id {
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6366f1;
+}
+
+.claim-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.claim-card__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.claim-card__label {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.claim-card__value {
+  color: #334155;
+  font-weight: 500;
+}
+
+.claim-card__payout {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.claim-card__footer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.claim-card__time {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ── Empty State ──────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+.text-danger {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.text-warning {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+
+  .navbar {
+    padding: 0 16px;
+  }
+
+  .navbar-links {
+    gap: 0;
+  }
+
+  .navbar-link {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .fraud-card__body {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar-title {
+    display: none;
+  }
+
+  .navbar-role {
+    display: none;
+  }
+}

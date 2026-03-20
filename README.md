@@ -27,7 +27,6 @@
 - [Adversarial Defense & Anti-Spoofing Strategy](#-adversarial-defense--anti-spoofing-strategy)
 - [Platform Decision: Web + Mobile](#-platform-decision-web--mobile)
 - [Tech Stack](#-tech-stack)
-- [Development Plan](#-development-plan)
 - [Scenario Coverage](#-scenario-coverage)
 - [Demo Video](#-2-minute-demo-video)
 - [Getting Started](#-getting-started)
@@ -769,39 +768,6 @@ guidewire-insur/
 
 ---
 
-## Development Plan
-
-### Phase 1: Foundation (Day 1)
-- [x] Project structure and schemas (Pydantic models)
-- [x] FastAPI backend skeleton with auth middleware
-- [x] Database models (SQLAlchemy + SQLite)
-- [x] Weather API integration (OpenWeatherMap)
-- [x] Basic React dashboard setup
-
-### Phase 2: Core Engine (Day 2)
-- [x] LangGraph StateGraph implementation
-- [x] Data Ingestion agent node
-- [x] Disruption Detection agent node
-- [x] Fraud & Eligibility Validation agent node
-- [x] Actuarial Engine (payout calculation)
-- [x] Weekly premium pricing model
-
-### Phase 3: Intelligence Layer (Day 3)
-- [x] ML fraud detection (Isolation Forest)
-- [x] Risk scoring model (Random Forest)
-- [x] LLM reasoning integration (Groq/LangChain)
-- [x] Multi-layer validation pipeline
-- [x] GPS spoofing detection logic
-
-### Phase 4: Integration & Polish (Day 4)
-- [x] End-to-end claim processing flow
-- [x] Admin dashboard with fraud review queue
-- [x] Payment processing (mock/sandbox)
-- [x] Comprehensive test scenarios
-- [x] Demo video recording
-
----
-
 ## Scenario Coverage
 
 Our system handles all 20 defined scenarios:
@@ -904,10 +870,11 @@ Built with passion for the **Guidewire Hackathon 2026**.
 
 | Member | Role |
 |---|---|
-| **H** | Backend & AI/ML Pipeline |
-| **A** | LangGraph Agent Orchestration |
-| **T** | Frontend & Dashboard |
-| **S** | Integration & Testing |
+| **Harini V** | Backend & AI/ML Pipeline |
+| **Arun Raj** | LangGraph Agent Orchestration & Domain Expert (Zepto Rider) |
+| **Tejaswini** | Frontend & Dashboard |
+| **Shanmugapriyan** | System Architecture & Integration |
+| **Achudhan A** | Testing & Fraud Detection Logic |
 
 ---
 
