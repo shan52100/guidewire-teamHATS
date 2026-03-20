@@ -4,17 +4,27 @@
 
 ## Inspiration
 
-It started with a conversation with a Zepto delivery rider during Mumbai's monsoon season.
+This didn't start in a boardroom or a brainstorming session. It started with **Arun** — our own teammate.
 
-He told us he lost ₹4,000 in a single week — not because he didn't want to work, but because **heavy rain killed demand** in his zone. Orders dropped to near-zero for hours at a stretch. No deliveries meant no income. No income meant skipping meals. And there was absolutely **no safety net** — no insurance product, no compensation mechanism, nothing designed for someone like him.
+Arun works part-time as a **Zepto delivery partner in Chennai**. He's been doing it alongside college for over a year now. He knows every lane in his zone, every warehouse shortcut, every peak-hour pattern. It's how he pays his rent and funds his education.
 
-We dug deeper. India has **7+ million active gig delivery workers**. During monsoon months, the average quick-commerce rider loses **15-25% of monthly income** to weather disruptions alone. Add floods, pollution shutdowns, zone closures, and platform outages — and you're looking at a massive, systemic gap in financial protection for the most vulnerable workforce powering India's convenience economy.
+Then came **December 2024**. Chennai's infamous unpredictable weather struck again. Cyclone Fengal dumped record rainfall across the city. Streets flooded overnight. T. Nagar, Velachery, Tambaram — entire zones went underwater. The Adyar river breached. Warehouses shut down. The Zepto app showed zero orders.
 
-Traditional insurance? Forget it. Monthly premiums are unaffordable. Claim filing is a nightmare. Processing takes weeks. It's simply **not built for gig workers earning ₹800/day**.
+Arun sat at home for **4 straight days**. No deliveries. No income. **₹5,000+ lost** in a single week — almost half his monthly earnings. And when the waters finally receded, the app was flooded with riders trying to make up for lost time, crashing per-delivery rates even further.
 
-That's when it clicked: **What if insurance could work like the weather itself — automatic, real-time, and data-driven?** What if the system could detect the disruption, validate the rider, calculate the loss, and pay out — all without the rider lifting a finger?
+*"There was nothing I could do,"* Arun told us during a late-night hackathon planning call. *"The rain didn't care that I had rent due. And Zepto didn't owe me anything — I'm a partner, not an employee. I just... ate the loss."*
 
-That's InsureFlow AI. Parametric insurance that **watches the sky so the rider doesn't have to**.
+That hit different because it wasn't some abstract user persona. **This was our friend sitting across the table.**
+
+And Chennai isn't Mumbai — you don't get a "monsoon season" you can plan around. Chennai's weather is **chaotic**. The northeast monsoon dumps 60% of annual rainfall in 3 months. Cyclones form in the Bay of Bengal with days of warning. Random cloud bursts flood arterial roads in 20 minutes. November could be bone-dry or underwater — you genuinely don't know until it happens. Riders like Arun can't plan for disruptions that are, by nature, **unpredictable**.
+
+We dug deeper. India has **7+ million active gig delivery workers**. During disruption months, the average quick-commerce rider loses **15-25% of monthly income** to weather events alone. In Chennai specifically, the 2023 and 2024 floods displaced thousands of gig workers for days at a stretch. Add pollution shutdowns, zone closures, and platform outages — and you're looking at a massive, systemic gap in financial protection for the most vulnerable workforce powering India's convenience economy.
+
+Traditional insurance? We asked Arun. He laughed. *"Bro, I earn ₹800 a day. Who's paying ₹500/month for insurance that takes 3 weeks to process a claim? By then I've already starved or borrowed money at interest."*
+
+That's when it clicked: **What if insurance could work like Chennai's weather — instant, unpredictable triggers met with equally instant, automatic payouts?** What if the system could detect the disruption, validate Arun's presence in the zone, calculate his income loss, and credit his UPI — all before he even opens the app to check?
+
+That's InsureFlow AI. Born from a real rider's real pain. Parametric insurance that **watches the sky so Arun doesn't have to**.
 
 ---
 

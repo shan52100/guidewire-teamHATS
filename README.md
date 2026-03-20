@@ -69,12 +69,12 @@ Quick-commerce delivery partners (Zepto, Blinkit, Swiggy Instamart) face **real-
 ### Primary Persona: Delivery Partner ("Rider")
 
 ```
-Name:       Ravi Kumar
-Age:        24
-Role:       Zepto Delivery Partner, Mumbai (Andheri Zone)
+Name:       Arun (based on our real teammate)
+Age:        22
+Role:       Part-time Zepto Delivery Partner, Chennai (T. Nagar / Velachery Zone)
 Income:     ₹800-1200/day (15-20 deliveries)
-Pain Point: Lost ₹3,500 last week due to 2 days of heavy rain
-            — no compensation, no fallback income
+Pain Point: Lost ₹5,000+ in a single week during Chennai floods (Dec 2024)
+            — no compensation, no fallback income, rent still due
 Need:       Affordable weekly insurance that pays out INSTANTLY
             when disruptions hit, without filing claims
 ```
@@ -90,22 +90,22 @@ Need:       Affordable weekly insurance that pays out INSTANTLY
 ### User Journey
 
 ```
- Ravi subscribes to weekly plan (₹49/week)
+ Arun subscribes to weekly plan (₹50/week — Moderate Zone)
           │
           ▼
- System monitors weather + zone data 24/7
+ System monitors Chennai weather + zone data 24/7
           │
           ▼
- Heavy rain detected in Ravi's zone at 3 PM
+ Heavy rain detected in Arun's zone (Velachery) at 3 PM
           │
           ▼
  AI validates: active policy ✓ | in-zone ✓ | was active ✓ | not fraud ✓
           │
           ▼
- Payout of ₹285 auto-credited to Ravi's UPI in < 60 seconds
+ Payout of ₹350 auto-credited to Arun's UPI in < 60 seconds
           │
           ▼
- Ravi gets SMS: "InsureFlow: ₹285 credited for rain disruption"
+ Arun gets SMS: "InsureFlow: ₹350 credited for rain disruption"
 ```
 
 ---
