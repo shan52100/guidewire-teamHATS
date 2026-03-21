@@ -623,6 +623,7 @@ with tab3:
     weekly = round(base * s_mult * (1 - discount), 1)
     total = round(weekly * p_weeks, 1)
 
+    coverage_cap = {"Low": 350, "Medium": 500, "High": 700}[zone_info["risk"]]
     with pc2:
         st.markdown(f"""<div class="premium-highlight">
             <h3 style="margin:0 0 0.8rem;">Your Premium Breakdown</h3>
@@ -632,7 +633,7 @@ with tab3:
                 <tr><td>History Discount ({p_clean_months} clean months)</td><td style="text-align:right">-{discount:.0%}</td></tr>
                 <tr style="border-top:2px solid #22c55e"><td><b>Weekly Premium</b></td><td style="text-align:right"><b style="font-size:1.3rem;color:#059669">₹{weekly}</b></td></tr>
                 <tr><td>Total ({p_weeks} weeks)</td><td style="text-align:right"><b>₹{total}</b></td></tr>
-                <tr><td>Coverage per event</td><td style="text-align:right">Up to ₹{{"Low":350,"Medium":500,"High":700}[zone_info["risk"]]}</td></tr>
+                <tr><td>Coverage per event</td><td style="text-align:right">Up to ₹{coverage_cap}</td></tr>
                 <tr><td>Max claims/week</td><td style="text-align:right">3</td></tr>
             </table>
         </div>""", unsafe_allow_html=True)
