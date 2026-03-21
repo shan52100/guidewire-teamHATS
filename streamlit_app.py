@@ -1,647 +1,745 @@
 """
-InsureFlow AI - Interactive Demo
-Parametric Insurance for Quick-Commerce Delivery Partners
+InsureFlow AI — Interactive Demo
+AI-Powered Parametric Insurance for Quick-Commerce Delivery Partners
+Team HATS | Guidewire Hackathon 2026
 """
 import streamlit as st
 import time
 import random
+import math
 import json
 from datetime import datetime, timedelta
 
 # ─── Page Config ─────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="InsureFlow AI - Parametric Insurance Demo",
-    page_icon="🌧️",
+    page_title="InsureFlow AI — Parametric Insurance Demo",
+    page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 # ─── Custom CSS ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    .main-header {
-        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-        padding: 2rem;
-        border-radius: 15px;
-        color: white;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .block-container { padding-top: 1rem; }
+
+    /* Header */
+    .hero {
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1f4e 40%, #2d1b69 100%);
+        padding: 2.5rem 2rem;
+        border-radius: 18px;
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
     }
-    .main-header h1 { color: white; margin: 0; font-size: 2.5rem; }
-    .main-header p { color: #a8d8ea; margin: 0.5rem 0 0 0; font-size: 1.1rem; }
-    .node-card {
-        padding: 1.2rem;
-        border-radius: 12px;
-        margin: 0.5rem 0;
-        border-left: 5px solid;
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
+        animation: pulse-bg 4s ease-in-out infinite;
     }
-    .node-pending { background: #f8f9fa; border-left-color: #6c757d; }
-    .node-running { background: #fff3cd; border-left-color: #ffc107; }
-    .node-success { background: #d4edda; border-left-color: #28a745; }
-    .node-failed { background: #f8d7da; border-left-color: #dc3545; }
-    .metric-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        text-align: center;
+    @keyframes pulse-bg { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .hero h1 { color: #fff; font-size: 2.8rem; font-weight: 800; margin: 0; position: relative; }
+    .hero .subtitle { color: #a5b4fc; font-size: 1.15rem; margin: 0.4rem 0 0; position: relative; }
+    .hero .tagline { color: #6366f1; font-size: 0.85rem; margin-top: 1rem; position: relative;
+        background: rgba(99,102,241,0.15); display: inline-block; padding: 0.3rem 1rem; border-radius: 20px; }
+
+    /* Cards */
+    .stat-card {
+        background: white; border-radius: 14px; padding: 1.3rem;
+        box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid #f0f0f5;
+        text-align: center; transition: transform 0.2s;
     }
-    .metric-card h2 { margin: 0; color: #2c5364; }
-    .metric-card p { margin: 0.3rem 0 0 0; color: #6c757d; font-size: 0.9rem; }
-    .fraud-alert {
-        background: linear-gradient(135deg, #ff416c, #ff4b2b);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        text-align: center;
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .stat-card .value { font-size: 1.9rem; font-weight: 800; margin: 0; }
+    .stat-card .label { font-size: 0.8rem; color: #6b7280; margin: 0.2rem 0 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Node pipeline */
+    .pipe-node {
+        padding: 1rem 1.2rem; border-radius: 12px; margin: 0.4rem 0;
+        border-left: 5px solid; display: flex; align-items: flex-start; gap: 0.7rem;
     }
-    .payout-success {
-        background: linear-gradient(135deg, #11998e, #38ef7d);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        text-align: center;
+    .pipe-pending  { background: #f9fafb; border-left-color: #d1d5db; color: #9ca3af; }
+    .pipe-running  { background: #fefce8; border-left-color: #eab308;
+        animation: shimmer 1.5s ease-in-out infinite alternate; }
+    @keyframes shimmer { 0% { background: #fefce8; } 100% { background: #fef9c3; } }
+    .pipe-success  { background: #f0fdf4; border-left-color: #22c55e; }
+    .pipe-failed   { background: #fef2f2; border-left-color: #ef4444; }
+    .pipe-node .icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+    .pipe-node .content { flex: 1; }
+    .pipe-node .title { font-weight: 700; font-size: 0.95rem; }
+    .pipe-node .detail { font-size: 0.82rem; color: #4b5563; margin-top: 2px; }
+    .pipe-node .badge {
+        display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+        border-radius: 6px; margin-left: 6px; vertical-align: middle;
     }
-    .scenario-box {
-        background: #f0f4f8;
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 0.5rem 0;
+    .badge-pass { background: #dcfce7; color: #166534; }
+    .badge-fail { background: #fee2e2; color: #991b1b; }
+    .badge-run  { background: #fef3c7; color: #92400e; }
+
+    /* Result banners */
+    .result-approved {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: white; padding: 2rem; border-radius: 16px; text-align: center;
     }
-    .stProgress > div > div > div > div { background: linear-gradient(90deg, #11998e, #38ef7d); }
+    .result-approved h2 { color: white; margin: 0; font-size: 1.8rem; }
+    .result-approved p { color: #d1fae5; margin: 0.3rem 0 0; font-size: 1rem; }
+    .result-rejected {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: white; padding: 2rem; border-radius: 16px; text-align: center;
+    }
+    .result-rejected h2 { color: white; margin: 0; font-size: 1.8rem; }
+    .result-rejected p { color: #fecaca; margin: 0.3rem 0 0; font-size: 1rem; }
+
+    /* Zone cards */
+    .zone-card {
+        background: white; border-radius: 14px; padding: 1.2rem;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.06); border: 1px solid #f0f0f5;
+        margin-bottom: 0.5rem;
+    }
+    .zone-card h4 { margin: 0 0 0.5rem; }
+    .risk-low { border-left: 5px solid #22c55e; }
+    .risk-med { border-left: 5px solid #f59e0b; }
+    .risk-high { border-left: 5px solid #ef4444; }
+
+    /* Premium table */
+    .premium-highlight { background: #f0fdf4; border-radius: 12px; padding: 1.2rem; border: 1px solid #bbf7d0; }
+
+    /* Sidebar */
+    section[data-testid="stSidebar"] { background: #f8fafc; }
+    section[data-testid="stSidebar"] .stMarkdown h2 { font-size: 1.1rem; }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] { gap: 2px; }
+    .stTabs [data-baseweb="tab"] {
+        padding: 0.6rem 1.2rem; border-radius: 8px 8px 0 0; font-weight: 600;
+    }
+
+    /* Flow arrows */
+    .flow-arrow { text-align: center; color: #9ca3af; font-size: 1.2rem; margin: -0.2rem 0; }
 </style>
 """, unsafe_allow_html=True)
 
 # ─── Data ────────────────────────────────────────────────────────────────────
 
 CHENNAI_ZONES = {
-    "T. Nagar (Moderate Zone)": {"zone_id": "CHN-TNG", "risk": "Medium", "premium": 50, "avg_orders": 45, "lat": 13.0418, "lon": 80.2341, "warehouse": "T. Nagar Dark Store"},
-    "Velachery (Flood-Prone Zone)": {"zone_id": "CHN-VLC", "risk": "High", "premium": 70, "avg_orders": 38, "lat": 12.9815, "lon": 80.2180, "warehouse": "Velachery Hub"},
-    "Anna Nagar (Safe Zone)": {"zone_id": "CHN-ANG", "risk": "Low", "premium": 30, "avg_orders": 55, "lat": 13.0850, "lon": 80.2101, "warehouse": "Anna Nagar Express"},
-    "Tambaram (Flood-Prone Zone)": {"zone_id": "CHN-TMB", "risk": "High", "premium": 70, "avg_orders": 30, "lat": 12.9249, "lon": 80.1000, "warehouse": "Tambaram Center"},
-    "Adyar (Moderate Zone)": {"zone_id": "CHN-ADY", "risk": "Medium", "premium": 50, "avg_orders": 42, "lat": 13.0067, "lon": 80.2572, "warehouse": "Adyar Quick Store"},
+    "T. Nagar": {"zone_id": "CHN-TNG", "risk": "Medium", "premium": 50, "avg_orders": 45, "lat": 13.0418, "lon": 80.2341, "warehouse": "T. Nagar Dark Store", "riders": 85, "color": "#f59e0b"},
+    "Velachery": {"zone_id": "CHN-VLC", "risk": "High", "premium": 70, "avg_orders": 38, "lat": 12.9815, "lon": 80.2180, "warehouse": "Velachery Hub", "riders": 62, "color": "#ef4444"},
+    "Anna Nagar": {"zone_id": "CHN-ANG", "risk": "Low", "premium": 30, "avg_orders": 55, "lat": 13.0850, "lon": 80.2101, "warehouse": "Anna Nagar Express", "riders": 110, "color": "#22c55e"},
+    "Tambaram": {"zone_id": "CHN-TMB", "risk": "High", "premium": 70, "avg_orders": 30, "lat": 12.9249, "lon": 80.1000, "warehouse": "Tambaram Center", "riders": 45, "color": "#ef4444"},
+    "Adyar": {"zone_id": "CHN-ADY", "risk": "Medium", "premium": 50, "avg_orders": 42, "lat": 13.0067, "lon": 80.2572, "warehouse": "Adyar Quick Store", "riders": 73, "color": "#f59e0b"},
 }
 
 SCENARIOS = {
-    "1. Valid Claim — Heavy Rain": {
-        "description": "Arun is actively delivering in Velachery. Heavy rain (65mm/hr) hits at 3 PM. Orders drop to zero. System auto-detects and pays out.",
-        "weather": {"rainfall_mm": 65, "condition": "Heavy Rain", "flood_alert": 0, "aqi": 85, "wind_speed": 35},
-        "rider": {"name": "Arun", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_event_active_hrs": 4.5},
-        "expected": "approved",
-        "zone": "Velachery (Flood-Prone Zone)"
+    "1. Valid Claim — Heavy Rain (Arun in Velachery)": {
+        "desc": "Arun is actively delivering in Velachery when heavy rain (65mm/hr) hits at 3 PM. Orders vanish. System auto-detects and pays out instantly.",
+        "weather": {"rainfall_mm": 65, "condition": "Heavy Rain", "flood_alert": 0, "aqi": 85, "wind_speed": 35, "temp": 26, "humidity": 94},
+        "rider": {"name": "Arun", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_hrs": 4.5, "trust": 0.92, "total_claims": 3, "platform": "Zepto"},
+        "expected": "approved", "zone": "Velachery"
     },
     "2. Fraud — GPS Spoofing Attempt": {
-        "description": "A fraudster spoofs GPS to appear in a flood zone during heavy rain. System detects mock location provider and trajectory anomaly.",
-        "weather": {"rainfall_mm": 80, "condition": "Heavy Rain", "flood_alert": 1, "aqi": 90, "wind_speed": 40},
-        "rider": {"name": "Suspicious User #47", "active": False, "in_zone": True, "has_policy": True, "history_clean": False, "gps_legit": False, "pre_event_active_hrs": 0},
-        "expected": "rejected",
-        "zone": "Velachery (Flood-Prone Zone)"
+        "desc": "Fraudster spoofs GPS to appear in a flood zone. System detects mock location provider, impossible trajectory, and cell-tower mismatch.",
+        "weather": {"rainfall_mm": 80, "condition": "Heavy Rain", "flood_alert": 1, "aqi": 90, "wind_speed": 40, "temp": 25, "humidity": 96},
+        "rider": {"name": "Suspicious User #47", "active": False, "in_zone": True, "has_policy": True, "history_clean": False, "gps_legit": False, "pre_hrs": 0, "trust": 0.15, "total_claims": 12, "platform": "Blinkit"},
+        "expected": "rejected", "zone": "Velachery"
     },
     "3. Rejected — No Active Policy": {
-        "description": "Rider hasn't subscribed to the weekly plan. Despite genuine rain disruption, system rejects immediately.",
-        "weather": {"rainfall_mm": 45, "condition": "Moderate Rain", "flood_alert": 0, "aqi": 70, "wind_speed": 20},
-        "rider": {"name": "Karthik", "active": True, "in_zone": True, "has_policy": False, "history_clean": True, "gps_legit": True, "pre_event_active_hrs": 3},
-        "expected": "rejected",
-        "zone": "T. Nagar (Moderate Zone)"
+        "desc": "Rider hasn't subscribed to the weekly plan. Despite genuine rain, system rejects — no policy, no coverage.",
+        "weather": {"rainfall_mm": 45, "condition": "Moderate Rain", "flood_alert": 0, "aqi": 70, "wind_speed": 20, "temp": 28, "humidity": 85},
+        "rider": {"name": "Karthik", "active": True, "in_zone": True, "has_policy": False, "history_clean": True, "gps_legit": True, "pre_hrs": 3, "trust": 0.5, "total_claims": 0, "platform": "Zepto"},
+        "expected": "rejected", "zone": "T. Nagar"
     },
     "4. Rejected — Outside Delivery Zone": {
-        "description": "Rider is located 8km from the warehouse. Even though rain is heavy, they're outside the service radius.",
-        "weather": {"rainfall_mm": 55, "condition": "Heavy Rain", "flood_alert": 0, "aqi": 75, "wind_speed": 25},
-        "rider": {"name": "Priya", "active": True, "in_zone": False, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_event_active_hrs": 1},
-        "expected": "rejected",
-        "zone": "Anna Nagar (Safe Zone)"
+        "desc": "Rider is 8km from the nearest warehouse. Rain is real, but they're outside the service radius. Location validation fails.",
+        "weather": {"rainfall_mm": 55, "condition": "Heavy Rain", "flood_alert": 0, "aqi": 75, "wind_speed": 25, "temp": 27, "humidity": 88},
+        "rider": {"name": "Priya", "active": True, "in_zone": False, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_hrs": 1, "trust": 0.7, "total_claims": 1, "platform": "Zepto"},
+        "expected": "rejected", "zone": "Anna Nagar"
     },
-    "5. Multi-Trigger — Rain + Flood Alert": {
-        "description": "Cyclone warning in Chennai. Heavy rain AND flood alert level 3. Multiple triggers compound severity. Higher payout.",
-        "weather": {"rainfall_mm": 120, "condition": "Cyclonic Rain", "flood_alert": 3, "aqi": 95, "wind_speed": 65},
-        "rider": {"name": "Arun", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_event_active_hrs": 5},
-        "expected": "approved",
-        "zone": "Tambaram (Flood-Prone Zone)"
+    "5. Multi-Trigger — Cyclone (Rain + Flood Level 3)": {
+        "desc": "Cyclone Fengal hits Chennai. 120mm rainfall AND flood alert level 3 in Tambaram. Compound severity = maximum payout.",
+        "weather": {"rainfall_mm": 120, "condition": "Cyclonic Rain", "flood_alert": 3, "aqi": 95, "wind_speed": 65, "temp": 23, "humidity": 99},
+        "rider": {"name": "Arun", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_hrs": 5, "trust": 0.92, "total_claims": 3, "platform": "Zepto"},
+        "expected": "approved", "zone": "Tambaram"
     },
-    "6. Fraud Ring — Coordinated Attack": {
-        "description": "15 claims arrive from the same zone within 5 minutes. Device fingerprinting reveals 3 devices behind 15 accounts. Ring detected.",
-        "weather": {"rainfall_mm": 50, "condition": "Moderate Rain", "flood_alert": 0, "aqi": 80, "wind_speed": 20},
-        "rider": {"name": "Ring Member #12", "active": False, "in_zone": True, "has_policy": True, "history_clean": False, "gps_legit": False, "pre_event_active_hrs": 0},
-        "expected": "rejected",
-        "zone": "Adyar (Moderate Zone)"
+    "6. Fraud Ring — 15 Coordinated Claims": {
+        "desc": "500-rider market crash simulation. 15 claims arrive in 5 minutes from one zone. Device fingerprinting reveals 3 devices behind 15 accounts.",
+        "weather": {"rainfall_mm": 50, "condition": "Moderate Rain", "flood_alert": 0, "aqi": 80, "wind_speed": 20, "temp": 27, "humidity": 82},
+        "rider": {"name": "Ring Member #12", "active": False, "in_zone": True, "has_policy": True, "history_clean": False, "gps_legit": False, "pre_hrs": 0, "trust": 0.08, "total_claims": 19, "platform": "Blinkit"},
+        "expected": "rejected", "zone": "Adyar"
     },
-    "7. Partial Impact — Moderate Rain": {
-        "description": "Moderate rain reduces orders by 40% but doesn't stop deliveries completely. System calculates proportional payout based on severity.",
-        "weather": {"rainfall_mm": 28, "condition": "Moderate Rain", "flood_alert": 0, "aqi": 60, "wind_speed": 15},
-        "rider": {"name": "Deepak", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_event_active_hrs": 6},
-        "expected": "approved",
-        "zone": "Anna Nagar (Safe Zone)"
+    "7. Partial Impact — Light Rain, Reduced Payout": {
+        "desc": "Moderate rain reduces orders by ~40%. Rider still delivers some. System calculates proportional severity-based payout.",
+        "weather": {"rainfall_mm": 28, "condition": "Moderate Rain", "flood_alert": 0, "aqi": 60, "wind_speed": 15, "temp": 29, "humidity": 78},
+        "rider": {"name": "Deepak", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_hrs": 6, "trust": 0.88, "total_claims": 2, "platform": "Zepto"},
+        "expected": "approved", "zone": "Anna Nagar"
     },
-    "8. Rejected — Opened App After Disruption": {
-        "description": "Rain stopped 2 hours ago. Rider opens app now and expects payout. Fails time validation — wasn't active during the disruption window.",
-        "weather": {"rainfall_mm": 55, "condition": "Post-Rain Clear", "flood_alert": 0, "aqi": 65, "wind_speed": 10},
-        "rider": {"name": "Vikram", "active": False, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_event_active_hrs": 0},
-        "expected": "rejected",
-        "zone": "T. Nagar (Moderate Zone)"
+    "8. Rejected — App Opened After Rain Stopped": {
+        "desc": "Rain stopped 2 hours ago. Rider opens app now expecting money. Fails time validation — wasn't active during disruption window.",
+        "weather": {"rainfall_mm": 55, "condition": "Post-Rain Clear", "flood_alert": 0, "aqi": 65, "wind_speed": 10, "temp": 30, "humidity": 72},
+        "rider": {"name": "Vikram", "active": False, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_hrs": 0, "trust": 0.6, "total_claims": 1, "platform": "Zepto"},
+        "expected": "rejected", "zone": "T. Nagar"
     },
-    "9. Air Pollution Trigger (AQI > 300)": {
-        "description": "Severe air pollution event. AQI crosses 350. Rider health at risk. System triggers payout for pollution disruption.",
-        "weather": {"rainfall_mm": 0, "condition": "Hazy / Polluted", "flood_alert": 0, "aqi": 365, "wind_speed": 5},
-        "rider": {"name": "Arun", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_event_active_hrs": 3},
-        "expected": "approved",
-        "zone": "T. Nagar (Moderate Zone)"
+    "9. Pollution Trigger — AQI > 300": {
+        "desc": "Severe air pollution. AQI hits 365. Hazardous for outdoor work. System triggers payout for health-risk disruption.",
+        "weather": {"rainfall_mm": 0, "condition": "Hazy / Polluted", "flood_alert": 0, "aqi": 365, "wind_speed": 5, "temp": 32, "humidity": 55},
+        "rider": {"name": "Arun", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_hrs": 3, "trust": 0.92, "total_claims": 3, "platform": "Zepto"},
+        "expected": "approved", "zone": "T. Nagar"
     },
-    "10. New User — First Claim (Grace Period)": {
-        "description": "Newly registered rider (5 days old) files first claim. System applies grace period — lower threshold, reduced initial payout.",
-        "weather": {"rainfall_mm": 50, "condition": "Heavy Rain", "flood_alert": 0, "aqi": 80, "wind_speed": 25},
-        "rider": {"name": "Naveen (New User)", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_event_active_hrs": 2},
-        "expected": "approved",
-        "zone": "Adyar (Moderate Zone)"
+    "10. New User — Grace Period (Reduced Payout)": {
+        "desc": "Newly registered rider (5 days). First claim ever. System applies grace period — benefit of doubt, but reduced initial payout.",
+        "weather": {"rainfall_mm": 50, "condition": "Heavy Rain", "flood_alert": 0, "aqi": 80, "wind_speed": 25, "temp": 26, "humidity": 90},
+        "rider": {"name": "Naveen (New User)", "active": True, "in_zone": True, "has_policy": True, "history_clean": True, "gps_legit": True, "pre_hrs": 2, "trust": 0.5, "total_claims": 0, "platform": "Blinkit"},
+        "expected": "approved", "zone": "Adyar"
     },
 }
 
 # ─── Helper Functions ────────────────────────────────────────────────────────
 
-def simulate_node(placeholder, node_name, icon, description, delay=0.8):
-    """Simulate a LangGraph node processing with animation."""
-    with placeholder.container():
-        st.markdown(f"""<div class="node-card node-running">
-            <b>{icon} {node_name}</b> — <i>Processing...</i><br>
-            <small>{description}</small>
+def animate_node(ph, icon, title, detail, status="running", delay=0.6):
+    cls = f"pipe-{status}"
+    badge_cls = {"running": "badge-run", "success": "badge-pass", "failed": "badge-fail"}.get(status, "")
+    badge_txt = {"running": "PROCESSING", "success": "PASSED", "failed": "FAILED"}.get(status, "")
+    with ph.container():
+        st.markdown(f"""<div class="pipe-node {cls}">
+            <div class="icon">{icon}</div>
+            <div class="content">
+                <div class="title">{title} <span class="badge {badge_cls}">{badge_txt}</span></div>
+                <div class="detail">{detail}</div>
+            </div>
         </div>""", unsafe_allow_html=True)
-    time.sleep(delay)
+    if status == "running":
+        time.sleep(delay)
 
-def show_node_result(placeholder, node_name, icon, result_text, success=True):
-    """Show node completion result."""
-    css_class = "node-success" if success else "node-failed"
-    status = "PASSED" if success else "FAILED"
-    with placeholder.container():
-        st.markdown(f"""<div class="node-card {css_class}">
-            <b>{icon} {node_name}</b> — <b>{status}</b><br>
-            <small>{result_text}</small>
-        </div>""", unsafe_allow_html=True)
-
-def calculate_payout(weather, zone_data, rider, is_new_user=False):
-    """Calculate payout based on severity and zone."""
-    severity = 0
-    triggers = []
-
+def calc_payout(weather, zone, rider):
+    severity, triggers = 0, []
     if weather["rainfall_mm"] > 20:
-        rain_severity = min(1.0, weather["rainfall_mm"] / 100)
-        severity += rain_severity
-        triggers.append(f"Rain: {weather['rainfall_mm']}mm/hr (severity: {rain_severity:.2f})")
-
+        s = min(1.0, weather["rainfall_mm"] / 100)
+        severity += s
+        triggers.append(("Rain", f"{weather['rainfall_mm']}mm/hr", s))
     if weather["flood_alert"] >= 2:
-        flood_severity = weather["flood_alert"] / 4
-        severity += flood_severity
-        triggers.append(f"Flood Alert Level {weather['flood_alert']} (severity: {flood_severity:.2f})")
-
+        s = weather["flood_alert"] / 4
+        severity += s
+        triggers.append(("Flood", f"Level {weather['flood_alert']}", s))
     if weather.get("aqi", 0) > 300:
-        aqi_severity = min(1.0, (weather["aqi"] - 300) / 200)
-        severity += aqi_severity
-        triggers.append(f"AQI: {weather['aqi']} (severity: {aqi_severity:.2f})")
-
+        s = min(1.0, (weather["aqi"] - 300) / 200)
+        severity += s
+        triggers.append(("AQI", str(weather["aqi"]), s))
     severity = min(1.0, severity)
-    avg_income_per_order = 40
-    lost_hours = min(8, severity * 10)
-    base_loss = zone_data["avg_orders"] * avg_income_per_order * (lost_hours / 8) * severity
-
-    if is_new_user:
-        base_loss *= 0.6  # Reduced for new users
-
-    # Apply zone-based cap
+    lost_hrs = min(8, severity * 10)
+    base = zone["avg_orders"] * 40 * (lost_hrs / 8) * severity
+    if "New User" in rider["name"]:
+        base *= 0.6
     caps = {"Low": 350, "Medium": 500, "High": 700}
-    cap = caps.get(zone_data["risk"], 500)
-    final_payout = min(base_loss, cap)
-    final_payout = round(max(100, final_payout), 0)
+    cap = caps[zone["risk"]]
+    final = round(min(max(100, base), cap))
+    dtype = "multi_trigger" if len(triggers) > 1 else (triggers[0][0].lower() if triggers else "none")
+    return {"severity": round(severity, 3), "triggers": triggers, "lost_hrs": round(lost_hrs, 1),
+            "base": round(base), "final": final, "cap": cap, "cap_hit": base > cap, "type": dtype}
 
-    return {
-        "severity": severity,
-        "triggers": triggers,
-        "lost_hours": round(lost_hours, 1),
-        "base_loss": round(base_loss, 0),
-        "final_payout": final_payout,
-        "cap_applied": base_loss > cap,
-        "disruption_type": "multi_trigger" if len(triggers) > 1 else ("pollution" if weather.get("aqi", 0) > 300 else "heavy_rain")
-    }
-
-def compute_fraud_score(rider, scenario_name):
-    """Compute fraud score based on rider signals."""
-    score = 0.0
-    signals = []
-
+def fraud_score(rider, scenario):
+    sc, sigs = 0.0, []
     if not rider["gps_legit"]:
-        score += 0.35
-        signals.append("GPS mock location detected (+0.35)")
+        sc += 0.35; sigs.append(("GPS Mock Detected", "isMockLocationEnabled = TRUE", 0.35))
     if not rider["active"]:
-        score += 0.15
-        signals.append("No pre-disruption activity (+0.15)")
-    if rider["pre_event_active_hrs"] == 0:
-        score += 0.15
-        signals.append("Zero hours active before event (+0.15)")
+        sc += 0.15; sigs.append(("Inactive During Event", "No delivery activity in disruption window", 0.15))
+    if rider["pre_hrs"] == 0:
+        sc += 0.15; sigs.append(("Zero Pre-Event Activity", "0 hours active before trigger", 0.15))
     if not rider["history_clean"]:
-        score += 0.20
-        signals.append("Suspicious claim history (+0.20)")
-    if "Ring" in scenario_name or "Fraud Ring" in scenario_name:
-        score += 0.30
-        signals.append("Coordinated attack pattern detected (+0.30)")
-        signals.append("Device fingerprint: 3 devices → 15 accounts")
-        signals.append("Temporal clustering: 15 claims in 5 minutes (avg: 2/hr)")
+        sc += 0.20; sigs.append(("Suspicious History", f"{rider['total_claims']} claims, trust: {rider['trust']}", 0.20))
+    if "Ring" in scenario:
+        sc += 0.30; sigs.append(("Ring Pattern", "15 claims / 5 min from 3 devices → 15 accounts", 0.30))
+    return min(1.0, sc), sigs
 
-    score = min(1.0, score)
-    return score, signals
+# ─── Hero Header ─────────────────────────────────────────────────────────────
 
-# ─── Main App ────────────────────────────────────────────────────────────────
-
-# Header
 st.markdown("""
-<div class="main-header">
-    <h1>InsureFlow AI</h1>
-    <p>AI-Powered Parametric Insurance for Quick-Commerce Delivery Partners</p>
-    <p style="font-size: 0.85rem; margin-top: 0.8rem; color: #7ec8e3;">Team HATS | Guidewire Hackathon 2026 | LangGraph + Groq + Scikit-learn</p>
+<div class="hero">
+    <h1>⚡ InsureFlow AI</h1>
+    <p class="subtitle">AI-Powered Parametric Insurance for Quick-Commerce Delivery Partners</p>
+    <p class="tagline">Team HATS  •  Guidewire Hackathon 2026  •  LangGraph + Groq + Scikit-learn</p>
 </div>
 """, unsafe_allow_html=True)
 
-# Sidebar
-st.sidebar.markdown("## Configuration")
-st.sidebar.markdown("---")
+# ─── Tabs ────────────────────────────────────────────────────────────────────
 
-selected_scenario = st.sidebar.selectbox(
-    "Select Scenario",
-    list(SCENARIOS.keys()),
-    help="Choose a test scenario to simulate the claim processing pipeline"
-)
+tab1, tab2, tab3, tab4 = st.tabs(["⚡ Claim Pipeline", "🗺️ Zone Dashboard", "💰 Premium Calculator", "📊 Analytics"])
 
-scenario = SCENARIOS[selected_scenario]
-zone_name = scenario["zone"]
-zone_data = CHENNAI_ZONES[zone_name]
-rider = scenario["rider"]
-weather = scenario["weather"]
+# ═══════════════════════════════════════════════════════════════════════════════
+# TAB 1: CLAIM PIPELINE
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab1:
+    col_side, col_main = st.columns([1, 2.5])
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("### Rider Profile")
-st.sidebar.markdown(f"**Name:** {rider['name']}")
-st.sidebar.markdown(f"**Zone:** {zone_name}")
-st.sidebar.markdown(f"**Weekly Premium:** ₹{zone_data['premium']}/week")
-st.sidebar.markdown(f"**Policy Active:** {'Yes' if rider['has_policy'] else 'No'}")
-st.sidebar.markdown(f"**In Zone:** {'Yes' if rider['in_zone'] else 'No'}")
-st.sidebar.markdown(f"**GPS Legitimate:** {'Yes' if rider['gps_legit'] else 'No'}")
+    with col_side:
+        st.markdown("#### Select Scenario")
+        selected = st.selectbox("Scenario", list(SCENARIOS.keys()), label_visibility="collapsed")
+        sc = SCENARIOS[selected]
+        zone = CHENNAI_ZONES[sc["zone"]]
+        rider = sc["rider"]
+        weather = sc["weather"]
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("### Weather Data")
-st.sidebar.markdown(f"**Condition:** {weather['condition']}")
-st.sidebar.markdown(f"**Rainfall:** {weather['rainfall_mm']} mm/hr")
-st.sidebar.markdown(f"**Flood Alert:** Level {weather['flood_alert']}")
-st.sidebar.markdown(f"**AQI:** {weather.get('aqi', 'N/A')}")
-st.sidebar.markdown(f"**Wind Speed:** {weather['wind_speed']} km/h")
+        st.markdown("---")
+        st.markdown(f"**👤 {rider['name']}** ({rider['platform']})")
+        st.markdown(f"📍 {sc['zone']} — {zone['warehouse']}")
 
-# Main content
-st.markdown(f"### Scenario: {selected_scenario}")
-st.markdown(f"""<div class="scenario-box">
-    <b>Description:</b> {scenario['description']}
-</div>""", unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        c1.metric("Trust", f"{rider['trust']:.0%}")
+        c2.metric("Claims", rider['total_claims'])
 
-st.markdown("")
+        st.markdown("---")
+        st.markdown(f"**🌦️ Weather Now**")
+        st.markdown(f"_{weather['condition']}_")
+        c1, c2 = st.columns(2)
+        c1.metric("Rain", f"{weather['rainfall_mm']}mm")
+        c2.metric("AQI", weather.get('aqi', '—'))
+        c1, c2 = st.columns(2)
+        c1.metric("Wind", f"{weather['wind_speed']}km/h")
+        c2.metric("Flood", f"Lvl {weather['flood_alert']}")
 
-# Zone info metrics
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.markdown(f"""<div class="metric-card">
-        <h2>₹{zone_data['premium']}</h2><p>Weekly Premium</p>
-    </div>""", unsafe_allow_html=True)
-with col2:
-    st.markdown(f"""<div class="metric-card">
-        <h2>{zone_data['risk']}</h2><p>Zone Risk Level</p>
-    </div>""", unsafe_allow_html=True)
-with col3:
-    st.markdown(f"""<div class="metric-card">
-        <h2>{zone_data['avg_orders']}</h2><p>Avg Orders/Hr</p>
-    </div>""", unsafe_allow_html=True)
-with col4:
-    st.markdown(f"""<div class="metric-card">
-        <h2>{weather['rainfall_mm']}mm</h2><p>Current Rainfall</p>
-    </div>""", unsafe_allow_html=True)
+        st.markdown("---")
+        expected_color = "🟢" if sc["expected"] == "approved" else "🔴"
+        st.markdown(f"**Expected:** {expected_color} {sc['expected'].upper()}")
 
-st.markdown("")
-st.markdown("---")
+    with col_main:
+        st.markdown(f"> {sc['desc']}")
+        st.markdown("")
 
-# Run Pipeline Button
-if st.button("Run LangGraph Claim Pipeline", type="primary", use_container_width=True):
-
-    st.markdown("## LangGraph Agent Pipeline")
-    st.markdown("")
-
-    progress_bar = st.progress(0, text="Initializing pipeline...")
-
-    # ── Node 1: Data Ingestion ───────────────────────────────────────────
-    node1 = st.empty()
-    simulate_node(node1, "Node 1: Data Ingestion", "📡",
-                  f"Fetching weather data from OpenWeatherMap API for zone {zone_data['zone_id']}...")
-    progress_bar.progress(15, text="Ingesting external data...")
-
-    show_node_result(node1, "Node 1: Data Ingestion", "📡",
-        f"Weather: {weather['condition']} | Rainfall: {weather['rainfall_mm']}mm/hr | "
-        f"AQI: {weather.get('aqi', 'N/A')} | Flood Alert: Level {weather['flood_alert']} | "
-        f"Zone: {zone_data['zone_id']} ({zone_data['warehouse']})")
-
-    # ── Node 2: Disruption Detection ─────────────────────────────────────
-    node2 = st.empty()
-    simulate_node(node2, "Node 2: Disruption Analyst", "🔍",
-                  "Analyzing trigger thresholds against parametric rules...")
-    progress_bar.progress(30, text="Detecting disruption triggers...")
-
-    payout_info = calculate_payout(weather, zone_data, rider,
-                                    is_new_user="New User" in rider["name"])
-
-    disruption_detected = len(payout_info["triggers"]) > 0 and weather["condition"] != "Post-Rain Clear"
-
-    if disruption_detected:
-        triggers_text = " | ".join(payout_info["triggers"])
-        show_node_result(node2, "Node 2: Disruption Analyst", "🔍",
-            f"DISRUPTION DETECTED — Type: {payout_info['disruption_type'].replace('_', ' ').title()} | "
-            f"Severity: {payout_info['severity']:.2f} | Triggers: {triggers_text}")
-    else:
-        reason = "Post-disruption: rain has already stopped" if weather["condition"] == "Post-Rain Clear" else "No parametric thresholds exceeded"
-        show_node_result(node2, "Node 2: Disruption Analyst", "🔍",
-            f"NO DISRUPTION — {reason}. Rainfall: {weather['rainfall_mm']}mm (threshold: 20mm)", success=False)
-        progress_bar.progress(100, text="Pipeline complete — No disruption detected")
-        st.markdown("""<div class="node-card node-failed">
-            <b>TERMINAL: No Action</b><br>
-            <small>No parametric trigger detected. Claim pipeline terminated. No payout issued.</small>
-        </div>""", unsafe_allow_html=True)
-        st.stop()
-
-    # ── Node 3: Fraud & Eligibility Validation ───────────────────────────
-    node3 = st.empty()
-    simulate_node(node3, "Node 3: Fraud & Eligibility Validator", "🛡️",
-                  "Running multi-layer validation: policy, location, time, activity, GPS, fraud ML model...")
-    progress_bar.progress(50, text="Validating claim eligibility...")
-
-    fraud_score, fraud_signals = compute_fraud_score(rider, selected_scenario)
-
-    validation_checks = []
-    all_passed = True
-
-    # Policy check
-    if rider["has_policy"]:
-        validation_checks.append(("Policy Valid", True, "Active weekly policy found"))
-    else:
-        validation_checks.append(("Policy Valid", False, "NO ACTIVE POLICY — rider has not subscribed"))
-        all_passed = False
-
-    # Location check
-    if rider["in_zone"]:
-        validation_checks.append(("Location Valid", True, f"Rider within {zone_data['warehouse']} service radius"))
-    else:
-        validation_checks.append(("Location Valid", False, "Rider is OUTSIDE warehouse delivery radius (>5km)"))
-        all_passed = False
-
-    # Time/Activity check
-    if rider["active"] and rider["pre_event_active_hrs"] > 0:
-        validation_checks.append(("Time & Activity Valid", True, f"Rider was active {rider['pre_event_active_hrs']}hrs before disruption"))
-    else:
-        validation_checks.append(("Time & Activity Valid", False, "Rider was NOT active during disruption window"))
-        all_passed = False
-
-    # GPS check
-    if rider["gps_legit"]:
-        validation_checks.append(("GPS Integrity", True, "GPS consistent with cell tower + Wi-Fi signals"))
-    else:
-        validation_checks.append(("GPS Integrity", False, "MOCK LOCATION DETECTED — GPS spoofing app identified"))
-        all_passed = False
-
-    # Fraud ML check
-    fraud_passed = fraud_score < 0.3
-    if fraud_passed:
-        validation_checks.append(("ML Fraud Check", True, f"Fraud score: {fraud_score:.2f} (threshold: 0.30)"))
-    else:
-        validation_checks.append(("ML Fraud Check", False, f"Fraud score: {fraud_score:.2f} EXCEEDS threshold 0.30"))
-        all_passed = False
-
-    # Display validation results
-    validation_text = ""
-    for check_name, passed, detail in validation_checks:
-        icon = "✅" if passed else "❌"
-        validation_text += f"{icon} **{check_name}**: {detail}  \n"
-
-    show_node_result(node3, "Node 3: Fraud & Eligibility Validator", "🛡️",
-        f"Fraud Score: {fraud_score:.2f} | Checks: {sum(1 for _, p, _ in validation_checks if p)}/{len(validation_checks)} passed",
-        success=all_passed)
-
-    # Show detailed validation
-    with st.expander("View Detailed Validation Results", expanded=True):
-        for check_name, passed, detail in validation_checks:
-            icon = "✅" if passed else "❌"
-            st.markdown(f"{icon} **{check_name}**: {detail}")
-
-        if fraud_signals:
-            st.markdown("---")
-            st.markdown("**Fraud Detection Signals:**")
-            for signal in fraud_signals:
-                st.markdown(f"- ⚠️ {signal}")
-
-    if not all_passed:
-        progress_bar.progress(100, text="Pipeline complete — Claim REJECTED")
-        rejection_reasons = [detail for _, passed, detail in validation_checks if not passed]
+        # Metrics row
+        m1, m2, m3, m4 = st.columns(4)
+        m1.markdown(f'<div class="stat-card"><p class="value" style="color:#6366f1">₹{zone["premium"]}</p><p class="label">Weekly Premium</p></div>', unsafe_allow_html=True)
+        m2.markdown(f'<div class="stat-card"><p class="value" style="color:{zone["color"]}">{zone["risk"]}</p><p class="label">Zone Risk</p></div>', unsafe_allow_html=True)
+        m3.markdown(f'<div class="stat-card"><p class="value" style="color:#0ea5e9">{zone["avg_orders"]}/hr</p><p class="label">Avg Orders</p></div>', unsafe_allow_html=True)
+        m4.markdown(f'<div class="stat-card"><p class="value" style="color:#8b5cf6">{zone["riders"]}</p><p class="label">Active Riders</p></div>', unsafe_allow_html=True)
 
         st.markdown("")
-        st.markdown(f"""<div class="fraud-alert">
-            <h2>CLAIM REJECTED</h2>
-            <p style="font-size: 1.1rem;">Fraud Score: {fraud_score:.2f} | {len(rejection_reasons)} validation(s) failed</p>
-        </div>""", unsafe_allow_html=True)
 
-        st.markdown("")
-        st.markdown("**Rejection Reasons (sent to rider + logged for audit):**")
-        for i, reason in enumerate(rejection_reasons, 1):
-            st.markdown(f"{i}. {reason}")
+        if st.button("▶  Run LangGraph Claim Pipeline", type="primary", use_container_width=True):
+            payout = calc_payout(weather, zone, rider)
+            fscore, fsigs = fraud_score(rider, selected)
 
-        if fraud_score >= 0.7:
-            st.warning("⚠️ HIGH FRAUD SCORE — Account flagged for admin review. Trust score reduced.")
-        elif fraud_score >= 0.3:
-            st.info("ℹ️ MODERATE FRAUD SCORE — Claim escalated to admin dashboard for manual review.")
+            progress = st.progress(0, text="Initializing LangGraph StateGraph...")
+            time.sleep(0.3)
 
-        # Show LLM reasoning
-        with st.expander("LLM Reasoning Chain (Groq LLaMA 3.1)"):
-            if "Ring" in selected_scenario:
-                st.code("""
-[LLM Reasoning — Fraud Ring Analysis]
+            # ── Node 1 ──
+            n1 = st.empty()
+            animate_node(n1, "📡", "Data Ingestion Agent",
+                f"Fetching OpenWeatherMap + {rider['platform']} API for zone {zone['zone_id']}...")
+            progress.progress(18, text="Ingesting weather + platform data...")
+            animate_node(n1, "📡", "Data Ingestion Agent",
+                f"Weather: {weather['condition']} ({weather['rainfall_mm']}mm rain, AQI {weather.get('aqi','—')}) | "
+                f"Zone: {zone['zone_id']} | Warehouse: {zone['warehouse']}",
+                status="success", delay=0)
 
-OBSERVATION: 15 claims received from zone CHN-ADY within 5-minute window.
-Historical baseline for this zone: 2 claims/hour.
-This represents a 90x spike in claim velocity.
+            st.markdown('<div class="flow-arrow">▼</div>', unsafe_allow_html=True)
 
-DEVICE ANALYSIS: 15 unique user accounts traced to 3 physical devices.
-Account-to-device ratio: 5:1 (threshold: 2:1)
+            # ── Node 2 ──
+            n2 = st.empty()
+            animate_node(n2, "🔍", "Disruption Analyst Agent",
+                "Checking parametric trigger thresholds (rain>20mm, flood>=2, AQI>300)...")
+            progress.progress(35, text="Analyzing disruption triggers...")
 
-BEHAVIORAL SIMILARITY: Claim timing variance < 30 seconds.
-GPS coordinates show identical trajectories across 8 accounts.
-All accounts registered within same 48-hour window.
+            disruption = len(payout["triggers"]) > 0 and weather["condition"] != "Post-Rain Clear"
 
-CONCLUSION: Coordinated fraud ring detected with HIGH confidence (0.95).
-RECOMMENDATION: Reject all 15 claims. Flag devices for permanent block.
-Escalate to admin for investigation.
-                """, language="text")
-            elif not rider["gps_legit"]:
-                st.code(f"""
-[LLM Reasoning — GPS Spoofing Detection]
-
-OBSERVATION: Rider {rider['name']} GPS reports location in {zone_name}.
-However, cell tower triangulation places device 12km away in Chromepet.
-Wi-Fi BSSID scan shows no matching access points for claimed location.
-
-TRAJECTORY ANALYSIS: GPS history shows instantaneous jump from Chromepet
-to {zone_name} (12km in 0 seconds). Physically impossible.
-
-MOCK LOCATION: Android system flag 'isMockLocationEnabled' = TRUE.
-App 'Fake GPS Pro' detected in running processes.
-
-PLATFORM CROSS-CHECK: Zepto rider tracking API shows last known
-location in Chromepet, not {zone_name}.
-
-CONCLUSION: GPS spoofing confirmed with HIGH confidence.
-RECOMMENDATION: Reject claim. Flag account. Reduce trust score by 0.3.
-                """, language="text")
+            if disruption:
+                trig_str = " + ".join([f"{t[0]}: {t[1]} (severity {t[2]:.2f})" for t in payout["triggers"]])
+                animate_node(n2, "🔍", "Disruption Analyst Agent",
+                    f"DISRUPTION CONFIRMED — {payout['type'].replace('_',' ').title()} | Severity: {payout['severity']:.2f} | {trig_str}",
+                    status="success", delay=0)
             else:
-                reasons_str = "; ".join([detail for _, passed, detail in validation_checks if not passed])
-                st.code(f"""
-[LLM Reasoning — Eligibility Check]
+                reason = "Rain already stopped — post-disruption window" if weather["condition"] == "Post-Rain Clear" else f"Rainfall {weather['rainfall_mm']}mm below 20mm threshold"
+                animate_node(n2, "🔍", "Disruption Analyst Agent",
+                    f"NO DISRUPTION — {reason}", status="failed", delay=0)
+                progress.progress(100, text="Pipeline terminated — no disruption")
+                st.markdown(f"""<div class="result-rejected">
+                    <h2>⛔ NO DISRUPTION DETECTED</h2>
+                    <p>{reason}. Pipeline terminated. No claim generated.</p>
+                </div>""", unsafe_allow_html=True)
+                st.stop()
 
-OBSERVATION: Claim from rider {rider['name']} for disruption in {zone_name}.
-Weather data confirms {weather['condition']} ({weather['rainfall_mm']}mm/hr).
+            st.markdown('<div class="flow-arrow">▼</div>', unsafe_allow_html=True)
 
-VALIDATION FAILURES:
-{reasons_str}
+            # ── Node 3 ──
+            n3 = st.empty()
+            animate_node(n3, "🛡️", "Fraud & Eligibility Validator",
+                "Running 5-layer validation: Policy → Location → Activity → GPS Integrity → ML Fraud Model...",
+                delay=0.9)
+            progress.progress(55, text="Validating eligibility + fraud detection...")
 
-ASSESSMENT: While weather disruption is genuine, rider fails eligibility
-criteria. This is not a fraud attempt — rider simply does not meet the
-validation requirements for automatic payout.
+            checks = []
+            ok = True
+            if rider["has_policy"]:
+                checks.append(("Policy", True, f"Active ₹{zone['premium']}/week plan"))
+            else:
+                checks.append(("Policy", False, "NO ACTIVE POLICY")); ok = False
+            if rider["in_zone"]:
+                checks.append(("Location", True, f"Within {zone['warehouse']} radius (< 5km)"))
+            else:
+                checks.append(("Location", False, "Outside warehouse service radius (8km)")); ok = False
+            if rider["active"] and rider["pre_hrs"] > 0:
+                checks.append(("Activity", True, f"Active {rider['pre_hrs']}hrs before event"))
+            else:
+                checks.append(("Activity", False, "Not active during disruption window")); ok = False
+            if rider["gps_legit"]:
+                checks.append(("GPS", True, "GPS + cell tower + Wi-Fi consistent"))
+            else:
+                checks.append(("GPS", False, "MOCK LOCATION — spoofing detected")); ok = False
+            if fscore < 0.3:
+                checks.append(("ML Fraud", True, f"Score: {fscore:.2f} (< 0.30 threshold)"))
+            else:
+                checks.append(("ML Fraud", False, f"Score: {fscore:.2f} EXCEEDS 0.30")); ok = False
 
-RECOMMENDATION: Reject claim with clear reason codes.
-Rider may appeal via admin dashboard if they believe this is an error.
-                """, language="text")
-        st.stop()
+            passed_count = sum(1 for _,p,_ in checks if p)
+            animate_node(n3, "🛡️", "Fraud & Eligibility Validator",
+                f"Fraud Score: {fscore:.2f} | Validation: {passed_count}/{len(checks)} passed" +
+                (" | ALL CLEAR" if ok else " | FAILED"),
+                status="success" if ok else "failed", delay=0)
 
-    # ── Node 4: Actuarial Engine ─────────────────────────────────────────
-    node4 = st.empty()
-    simulate_node(node4, "Node 4: Actuarial Engine", "🧮",
-                  "Calculating income loss based on severity, zone density, and historical earnings...")
-    progress_bar.progress(70, text="Computing payout amount...")
+            # Validation detail expander
+            with st.expander(f"{'✅' if ok else '❌'} Validation Details ({passed_count}/{len(checks)} passed)", expanded=not ok):
+                for name, passed, detail in checks:
+                    icon = "✅" if passed else "❌"
+                    st.markdown(f"{icon} **{name}**: {detail}")
+                if fsigs:
+                    st.markdown("---")
+                    st.markdown("**Fraud Signals (Isolation Forest + Rule Engine):**")
+                    for sig_name, sig_detail, sig_weight in fsigs:
+                        st.markdown(f"- 🚨 **{sig_name}** — {sig_detail} _(+{sig_weight:.2f})_")
 
-    show_node_result(node4, "Node 4: Actuarial Engine", "🧮",
-        f"Severity: {payout_info['severity']:.2f} | Lost Hours: {payout_info['lost_hours']}hrs | "
-        f"Base Loss: ₹{payout_info['base_loss']:.0f} | Final Payout: ₹{payout_info['final_payout']:.0f}"
-        f"{' (cap applied)' if payout_info['cap_applied'] else ''}"
-        f"{' (new user: 60% rate)' if 'New User' in rider['name'] else ''}")
+            if not ok:
+                progress.progress(100, text="Pipeline complete — REJECTED")
+                rejections = [d for _,p,d in checks if not p]
+                st.markdown("")
+                st.markdown(f"""<div class="result-rejected">
+                    <h2>🚫 CLAIM REJECTED</h2>
+                    <p>Fraud Score: {fscore:.2f} | {len(rejections)} validation failure(s)</p>
+                </div>""", unsafe_allow_html=True)
+                st.markdown("")
+                for i, r in enumerate(rejections, 1):
+                    st.error(f"**Reason {i}:** {r}")
+                if fscore >= 0.7:
+                    st.warning("⚠️ HIGH FRAUD — Account flagged. Trust score reduced. Escalated to admin.")
+                elif fscore >= 0.3:
+                    st.info("ℹ️ Moderate fraud score — Claim sent to admin queue for manual review.")
 
-    with st.expander("View Income Loss Calculation"):
-        st.markdown(f"""
+                with st.expander("🤖 LLM Reasoning Chain (Groq LLaMA 3.1)"):
+                    if "Ring" in selected:
+                        st.code(f"""[LLM Agent — Fraud Ring Analysis]
+OBSERVATION: 15 claims from zone {zone['zone_id']} within 5-minute window.
+Zone baseline: 2 claims/hour. This is a 90x velocity spike.
+DEVICE ANALYSIS: 15 accounts → 3 physical devices (ratio 5:1, threshold 2:1)
+BEHAVIORAL: Claim timing variance < 30s. Identical GPS trajectories across 8 accounts.
+All accounts registered within same 48-hour window.
+VERDICT: Coordinated fraud ring. Confidence: 0.95.
+ACTION: Reject all 15. Block 3 devices. Escalate to admin.""", language="text")
+                    elif not rider["gps_legit"]:
+                        st.code(f"""[LLM Agent — GPS Spoofing Detection]
+OBSERVATION: {rider['name']} GPS claims location in {sc['zone']}.
+Cell tower triangulation: device is in Chromepet (12km away).
+Wi-Fi BSSID: no matching access points for claimed location.
+TRAJECTORY: Instantaneous jump Chromepet → {sc['zone']} (12km in 0s). Impossible.
+SYSTEM FLAG: Android isMockLocationEnabled = TRUE.
+PLATFORM CHECK: {rider['platform']} tracking shows Chromepet, not {sc['zone']}.
+VERDICT: GPS spoofing confirmed. Confidence: 0.93.
+ACTION: Reject. Flag account. Trust score -= 0.3.""", language="text")
+                    else:
+                        st.code(f"""[LLM Agent — Eligibility Assessment]
+OBSERVATION: {rider['name']} in {sc['zone']}, weather: {weather['condition']}.
+Disruption is GENUINE (verified via OpenWeatherMap).
+However, rider fails eligibility: {'; '.join(rejections)}
+ASSESSMENT: Not fraud — rider does not meet coverage criteria.
+ACTION: Reject with clear reason codes. Rider can appeal via dashboard.""", language="text")
+                st.stop()
+
+            st.markdown('<div class="flow-arrow">▼</div>', unsafe_allow_html=True)
+
+            # ── Node 4 ──
+            n4 = st.empty()
+            animate_node(n4, "🧮", "Actuarial Engine",
+                f"Computing income loss: {zone['avg_orders']} orders/hr × ₹40 × {payout['lost_hrs']}hrs × {payout['severity']:.2f} severity...")
+            progress.progress(75, text="Calculating payout amount...")
+            animate_node(n4, "🧮", "Actuarial Engine",
+                f"Base Loss: ₹{payout['base']} | Cap ({zone['risk']}): ₹{payout['cap']} | "
+                f"{'CAP APPLIED → ' if payout['cap_hit'] else ''}Final: ₹{payout['final']}" +
+                (" (new user 60% rate)" if "New User" in rider["name"] else ""),
+                status="success", delay=0)
+
+            with st.expander("📐 Income Loss Calculation Breakdown"):
+                st.markdown(f"""
 | Parameter | Value |
 |---|---|
-| Avg Orders/Hour (Zone) | {zone_data['avg_orders']} |
-| Avg Income/Order | ₹40 |
-| Disruption Severity | {payout_info['severity']:.2f} |
-| Estimated Lost Hours | {payout_info['lost_hours']} hrs |
-| Base Income Loss | ₹{payout_info['base_loss']:.0f} |
-| Zone Payout Cap ({zone_data['risk']} Risk) | ₹{ {'Low': 350, 'Medium': 500, 'High': 700}[zone_data['risk']]} |
-| Cap Applied | {'Yes' if payout_info['cap_applied'] else 'No'} |
-| **Final Payout** | **₹{payout_info['final_payout']:.0f}** |
-        """)
-        st.markdown(f"**Formula:** `Loss = (Orders/Hr × ₹/Order × Lost Hours × Severity)`")
-        st.markdown(f"**Calculation:** `{zone_data['avg_orders']} × ₹40 × {payout_info['lost_hours']} × {payout_info['severity']:.2f} = ₹{payout_info['base_loss']:.0f}`")
+| Zone Avg Orders/Hr | {zone['avg_orders']} |
+| Income per Order | ₹40 |
+| Disruption Severity | {payout['severity']:.2f} |
+| Lost Hours | {payout['lost_hrs']} |
+| **Base Loss** | **₹{payout['base']}** |
+| Zone Cap ({zone['risk']}) | ₹{payout['cap']} |
+| Cap Applied | {'Yes' if payout['cap_hit'] else 'No'} |
+| **Final Payout** | **₹{payout['final']}** |
 
-    # ── Node 5: Payout Processor ─────────────────────────────────────────
-    node5 = st.empty()
-    simulate_node(node5, "Node 5: Payout Processor", "💸",
-                  f"Processing UPI payment of ₹{payout_info['final_payout']:.0f} to {rider['name']}...")
-    progress_bar.progress(90, text="Processing payment...")
+`Loss = {zone['avg_orders']} × ₹40 × ({payout['lost_hrs']}/8) × {payout['severity']:.2f} = ₹{payout['base']}`
+""")
 
-    txn_id = f"TXN-{random.randint(100000, 999999)}"
-    show_node_result(node5, "Node 5: Payout Processor", "💸",
-        f"Payment SUCCESS — ₹{payout_info['final_payout']:.0f} credited via UPI | "
-        f"Transaction: {txn_id} | Time: {datetime.now().strftime('%H:%M:%S')}")
+            st.markdown('<div class="flow-arrow">▼</div>', unsafe_allow_html=True)
 
-    progress_bar.progress(100, text="Pipeline complete — Claim APPROVED")
+            # ── Node 5 ──
+            n5 = st.empty()
+            txn = f"TXN-{random.randint(100000, 999999)}"
+            animate_node(n5, "💸", "Payout Processor",
+                f"Initiating UPI payment of ₹{payout['final']} to {rider['name']}@upi via Razorpay sandbox...")
+            progress.progress(92, text="Processing UPI payment...")
+            animate_node(n5, "💸", "Payout Processor",
+                f"PAYMENT SUCCESS — ₹{payout['final']} → {rider['name']}@upi | Txn: {txn} | {datetime.now().strftime('%H:%M:%S')}",
+                status="success", delay=0)
 
-    # ── Final Result ─────────────────────────────────────────────────────
+            progress.progress(100, text="Pipeline complete — APPROVED ✅")
+
+            # ── Result ──
+            st.markdown("")
+            st.markdown(f"""<div class="result-approved">
+                <h2>✅ CLAIM APPROVED — ₹{payout['final']} PAID</h2>
+                <p>{rider['name']} received instant UPI payout | Transaction: {txn}</p>
+            </div>""", unsafe_allow_html=True)
+
+            st.markdown("")
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("💵 Payout", f"₹{payout['final']}")
+            c2.metric("⏱️ Processing", f"{random.uniform(1.2, 3.5):.1f}s")
+            c3.metric("🛡️ Fraud Score", f"{fscore:.2f}")
+            c4.metric("📊 Confidence", f"{random.uniform(0.89, 0.97):.0%}")
+
+            st.success(f"📱 SMS → {rider['name']}: \"InsureFlow: ₹{payout['final']} credited for {payout['type'].replace('_',' ')} disruption in {sc['zone']}. Txn: {txn}\"")
+
+            with st.expander("🤖 LLM Reasoning Chain (Groq LLaMA 3.1)"):
+                st.code(f"""[LLM Agent — Claim Approval]
+RIDER: {rider['name']} | Zone: {zone['zone_id']} ({sc['zone']}) | Platform: {rider['platform']}
+WEATHER: {weather['condition']} — {weather['rainfall_mm']}mm rain, AQI {weather.get('aqi','—')}, Flood Lvl {weather['flood_alert']}
+{"MULTI-TRIGGER: " + " + ".join(t[0] for t in payout['triggers']) if len(payout['triggers']) > 1 else "TRIGGER: " + payout['triggers'][0][0]}
+
+VALIDATION: {passed_count}/{len(checks)} checks passed.
+  - Policy: Active (₹{zone['premium']}/week)
+  - Location: Within {zone['warehouse']} radius
+  - Activity: {rider['pre_hrs']}hrs pre-event (strong genuine signal)
+  - GPS: Consistent multi-signal verification
+  - Fraud: {fscore:.2f} (clean)
+
+PAYOUT: {zone['avg_orders']} orders × ₹40 × {payout['lost_hrs']}hrs × {payout['severity']:.2f} severity
+       = ₹{payout['base']} → ₹{payout['final']} {'(capped)' if payout['cap_hit'] else ''}
+
+DECISION: APPROVE. High confidence. Weather independently verifiable.
+Rider profile consistent. Trust score: {rider['trust']:.0%}.""", language="text")
+
+            with st.expander("📋 Full Audit Log (JSON)"):
+                st.json({
+                    "claim_id": f"CLM-{random.randint(10000, 99999)}",
+                    "timestamp": datetime.now().isoformat(),
+                    "rider": rider["name"], "platform": rider["platform"],
+                    "zone": zone["zone_id"], "zone_name": sc["zone"],
+                    "weather": weather,
+                    "disruption": {"type": payout["type"], "severity": payout["severity"],
+                                   "triggers": [{"name": t[0], "value": t[1], "severity": t[2]} for t in payout["triggers"]]},
+                    "validation": {c[0]: {"passed": c[1], "detail": c[2]} for c in checks},
+                    "fraud_score": fscore,
+                    "payout": {"amount": payout["final"], "currency": "INR", "method": "UPI",
+                               "txn_id": txn, "status": "completed"},
+                    "decision": "APPROVED",
+                    "processing_ms": random.randint(1200, 3500),
+                    "graph_nodes": ["data_ingestion", "disruption_analyst", "fraud_validator", "actuarial_engine", "payout_processor"],
+                    "llm_model": "groq/llama-3.1-70b"
+                })
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TAB 2: ZONE DASHBOARD
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab2:
+    st.markdown("### Chennai Zone Coverage Map")
+    st.markdown("All 5 operational zones with real-time risk classification and rider distribution.")
     st.markdown("")
-    st.markdown(f"""<div class="payout-success">
-        <h2>CLAIM APPROVED — ₹{payout_info['final_payout']:.0f} PAID</h2>
-        <p style="font-size: 1.1rem;">{rider['name']} received instant payout via UPI | Transaction: {txn_id}</p>
-    </div>""", unsafe_allow_html=True)
+
+    # Map
+    import pandas as pd
+    map_data = pd.DataFrame([
+        {"lat": z["lat"], "lon": z["lon"], "zone": name, "risk": z["risk"], "riders": z["riders"]}
+        for name, z in CHENNAI_ZONES.items()
+    ])
+    st.map(map_data, latitude="lat", longitude="lon", size=800, zoom=11)
+
+    st.markdown("")
+    st.markdown("### Zone Details")
+
+    cols = st.columns(len(CHENNAI_ZONES))
+    for i, (name, z) in enumerate(CHENNAI_ZONES.items()):
+        risk_cls = {"Low": "risk-low", "Medium": "risk-med", "High": "risk-high"}[z["risk"]]
+        with cols[i]:
+            st.markdown(f"""<div class="zone-card {risk_cls}">
+                <h4>{name}</h4>
+                <p><b>Risk:</b> {z['risk']}<br>
+                <b>Premium:</b> ₹{z['premium']}/week<br>
+                <b>Riders:</b> {z['riders']}<br>
+                <b>Orders:</b> {z['avg_orders']}/hr<br>
+                <b>Warehouse:</b> {z['warehouse']}</p>
+            </div>""", unsafe_allow_html=True)
+
+    st.markdown("")
+    st.markdown("### Zone Risk Summary")
+    summary_df = pd.DataFrame([
+        {"Zone": n, "Risk": z["risk"], "Premium (₹/week)": z["premium"],
+         "Active Riders": z["riders"], "Avg Orders/Hr": z["avg_orders"],
+         "Payout Cap (₹)": {"Low": 350, "Medium": 500, "High": 700}[z["risk"]]}
+        for n, z in CHENNAI_ZONES.items()
+    ])
+    st.dataframe(summary_df, use_container_width=True, hide_index=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TAB 3: PREMIUM CALCULATOR
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab3:
+    st.markdown("### Weekly Premium Calculator")
+    st.markdown("See how your premium is calculated based on zone, season, and claim history.")
+    st.markdown("")
+
+    pc1, pc2 = st.columns(2)
+
+    with pc1:
+        p_zone = st.selectbox("Select Zone", list(CHENNAI_ZONES.keys()))
+        p_month = st.select_slider("Month", options=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], value="Mar")
+        p_clean_months = st.slider("Clean Months (no claims)", 0, 12, 3)
+        p_weeks = st.number_input("Number of Weeks", 1, 52, 4)
+
+    seasonal = {"Jan": 1.0, "Feb": 0.9, "Mar": 1.0, "Apr": 1.1, "May": 1.1, "Jun": 1.2,
+                "Jul": 1.35, "Aug": 1.3, "Sep": 1.2, "Oct": 1.4, "Nov": 1.4, "Dec": 1.3}
+    zone_info = CHENNAI_ZONES[p_zone]
+    base = zone_info["premium"]
+    s_mult = seasonal[p_month]
+    discount = min(0.25, p_clean_months * 0.05)
+    weekly = round(base * s_mult * (1 - discount), 1)
+    total = round(weekly * p_weeks, 1)
+
+    with pc2:
+        st.markdown(f"""<div class="premium-highlight">
+            <h3 style="margin:0 0 0.8rem;">Your Premium Breakdown</h3>
+            <table style="width:100%; font-size: 0.95rem;">
+                <tr><td>Base Premium ({zone_info['risk']} Risk)</td><td style="text-align:right"><b>₹{base}</b>/week</td></tr>
+                <tr><td>Seasonal Multiplier ({p_month})</td><td style="text-align:right">×{s_mult}</td></tr>
+                <tr><td>History Discount ({p_clean_months} clean months)</td><td style="text-align:right">-{discount:.0%}</td></tr>
+                <tr style="border-top:2px solid #22c55e"><td><b>Weekly Premium</b></td><td style="text-align:right"><b style="font-size:1.3rem;color:#059669">₹{weekly}</b></td></tr>
+                <tr><td>Total ({p_weeks} weeks)</td><td style="text-align:right"><b>₹{total}</b></td></tr>
+                <tr><td>Coverage per event</td><td style="text-align:right">Up to ₹{{"Low":350,"Medium":500,"High":700}[zone_info["risk"]]}</td></tr>
+                <tr><td>Max claims/week</td><td style="text-align:right">3</td></tr>
+            </table>
+        </div>""", unsafe_allow_html=True)
+
+    st.markdown("")
+    st.markdown("### Premium Comparison Across Zones")
+
+    import pandas as pd
+    comp_data = []
+    for zn, zd in CHENNAI_ZONES.items():
+        for m in ["Jan","Apr","Jul","Oct"]:
+            sm = seasonal[m]
+            wp = round(zd["premium"] * sm * (1 - discount), 1)
+            comp_data.append({"Zone": zn, "Month": m, "Premium (₹/week)": wp})
+    comp_df = pd.DataFrame(comp_data)
+    pivot = comp_df.pivot(index="Zone", columns="Month", values="Premium (₹/week)")
+    pivot = pivot[["Jan","Apr","Jul","Oct"]]
+    st.dataframe(pivot, use_container_width=True)
+
+    st.info(f"💡 **Formula:** `Weekly Premium = Base × Seasonal({p_month}: ×{s_mult}) × (1 - Discount({discount:.0%}))` = ₹{base} × {s_mult} × {1-discount:.2f} = **₹{weekly}**")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TAB 4: ANALYTICS
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab4:
+    st.markdown("### Platform Analytics Dashboard")
+    st.markdown("")
+
+    # Top metrics
+    am1, am2, am3, am4, am5 = st.columns(5)
+    am1.metric("Total Riders", "375", "+12 today")
+    am2.metric("Active Policies", "318", "+8 today")
+    am3.metric("Claims Today", "23", "+5 from avg")
+    am4.metric("Payouts Today", "₹6,840", "")
+    am5.metric("Fraud Blocked", "3", "₹2,100 saved")
 
     st.markdown("")
 
-    # Summary metrics
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Payout Amount", f"₹{payout_info['final_payout']:.0f}")
-    with col2:
-        st.metric("Processing Time", f"{random.uniform(1.2, 3.8):.1f}s")
-    with col3:
-        st.metric("Fraud Score", f"{fraud_score:.2f}", delta="Clean", delta_color="normal")
-    with col4:
-        st.metric("Confidence", f"{random.uniform(0.88, 0.97):.0%}")
+    import pandas as pd
 
-    # SMS notification
-    st.success(f"📱 SMS sent to {rider['name']}: \"InsureFlow: ₹{payout_info['final_payout']:.0f} credited to your UPI for {payout_info['disruption_type'].replace('_', ' ')} disruption in {zone_name}. Txn: {txn_id}\"")
+    ac1, ac2 = st.columns(2)
 
-    # LLM Reasoning
-    with st.expander("LLM Reasoning Chain (Groq LLaMA 3.1)"):
-        st.code(f"""
-[LLM Reasoning — Claim Approval]
+    with ac1:
+        st.markdown("#### Claims This Week (by Zone)")
+        claims_data = pd.DataFrame({
+            "Zone": list(CHENNAI_ZONES.keys()),
+            "Approved": [12, 18, 8, 14, 10],
+            "Rejected": [2, 5, 1, 4, 3],
+            "Flagged": [0, 2, 0, 1, 1],
+        })
+        st.bar_chart(claims_data.set_index("Zone"), color=["#22c55e", "#ef4444", "#f59e0b"])
 
-OBSERVATION: Rider {rider['name']} in zone {zone_data['zone_id']} ({zone_name}).
-Weather API confirms {weather['condition']} with {weather['rainfall_mm']}mm/hr rainfall.
-{"Flood alert level " + str(weather['flood_alert']) + " active. " if weather['flood_alert'] >= 2 else ""}{"AQI at " + str(weather['aqi']) + " (hazardous). " if weather.get('aqi', 0) > 300 else ""}
+    with ac2:
+        st.markdown("#### Payout Distribution (₹)")
+        payout_data = pd.DataFrame({
+            "Zone": list(CHENNAI_ZONES.keys()),
+            "Total Payouts": [4200, 8960, 2100, 6580, 3850],
+        })
+        st.bar_chart(payout_data.set_index("Zone"), color=["#6366f1"])
 
-VALIDATION: All {len(validation_checks)} checks passed.
-- Active policy: YES (₹{zone_data['premium']}/week plan)
-- In zone: YES ({zone_data['warehouse']}, within 5km radius)
-- Pre-event activity: {rider['pre_event_active_hrs']} hours (strong signal of genuine presence)
-- GPS integrity: Consistent across GPS, cell tower, and Wi-Fi signals
-- Fraud score: {fraud_score:.2f} (well below 0.30 threshold)
+    st.markdown("")
+    ac3, ac4 = st.columns(2)
 
-DISRUPTION SEVERITY: {payout_info['severity']:.2f}
-Triggers: {', '.join(payout_info['triggers'])}
-Estimated lost hours: {payout_info['lost_hours']}
+    with ac3:
+        st.markdown("#### Fraud Detection Summary")
+        fraud_data = pd.DataFrame([
+            {"Type": "GPS Spoofing", "Detected": 8, "Blocked Amount": "₹3,200"},
+            {"Type": "Fraud Rings", "Detected": 2, "Blocked Amount": "₹12,600"},
+            {"Type": "Duplicate Claims", "Detected": 5, "Blocked Amount": "₹1,750"},
+            {"Type": "Time Manipulation", "Detected": 3, "Blocked Amount": "₹1,050"},
+            {"Type": "Inactive Riders", "Detected": 11, "Blocked Amount": "₹3,850"},
+        ])
+        st.dataframe(fraud_data, use_container_width=True, hide_index=True)
 
-INCOME CALCULATION:
-Zone avg orders: {zone_data['avg_orders']}/hr × ₹40/order × {payout_info['lost_hours']}hrs × {payout_info['severity']:.2f} severity
-= ₹{payout_info['base_loss']:.0f} base loss → ₹{payout_info['final_payout']:.0f} after {'cap' if payout_info['cap_applied'] else 'no cap needed'}
+    with ac4:
+        st.markdown("#### Risk Pool Health")
+        st.markdown(f"""<div class="stat-card" style="text-align:left; padding:1.5rem;">
+            <p><b>Weekly Premiums Collected:</b> ₹17,340</p>
+            <p><b>Weekly Payouts Made:</b> ₹25,690</p>
+            <p><b>Loss Ratio:</b> <span style="color:#ef4444">148%</span> (cyclone week)</p>
+            <p><b>Pool Reserve (20%):</b> ₹3,468</p>
+            <p><b>Reinsurance Trigger (80%):</b> Not triggered</p>
+            <hr>
+            <p style="color:#6b7280;font-size:0.8rem;">Note: High loss ratio expected during cyclone events. Monthly average target: 65-75%.</p>
+        </div>""", unsafe_allow_html=True)
 
-DECISION: APPROVE with HIGH confidence.
-Rider profile is consistent, weather data independently verifiable,
-activity signals strong. No fraud indicators present.
-        """, language="text")
+    st.markdown("")
+    st.markdown("#### Recent Claims Feed")
+    feed = pd.DataFrame([
+        {"Time": "14:32", "Rider": "Arun", "Zone": "Velachery", "Type": "Heavy Rain", "Severity": 0.65, "Status": "✅ Approved", "Payout": "₹500"},
+        {"Time": "14:28", "Rider": "User #47", "Zone": "Velachery", "Type": "Heavy Rain", "Severity": 0.80, "Status": "🚫 Rejected", "Payout": "—"},
+        {"Time": "14:25", "Rider": "Deepak", "Zone": "Anna Nagar", "Type": "Moderate Rain", "Severity": 0.28, "Status": "✅ Approved", "Payout": "₹180"},
+        {"Time": "14:20", "Rider": "Ring #1-15", "Zone": "Adyar", "Type": "Fraud Ring", "Severity": 0.50, "Status": "🚫 Blocked (15)", "Payout": "—"},
+        {"Time": "14:15", "Rider": "Priya", "Zone": "Tambaram", "Type": "Cyclonic Rain", "Severity": 0.95, "Status": "✅ Approved", "Payout": "₹700"},
+        {"Time": "14:10", "Rider": "Karthik", "Zone": "T. Nagar", "Type": "Heavy Rain", "Severity": 0.45, "Status": "⚠️ No Policy", "Payout": "—"},
+        {"Time": "14:05", "Rider": "Naveen", "Zone": "Adyar", "Type": "Heavy Rain", "Severity": 0.50, "Status": "✅ Approved", "Payout": "₹210"},
+    ])
+    st.dataframe(feed, use_container_width=True, hide_index=True)
 
-    # Audit log
-    with st.expander("Full Audit Log (JSON)"):
-        audit = {
-            "claim_id": f"CLM-{random.randint(10000, 99999)}",
-            "timestamp": datetime.now().isoformat(),
-            "rider": rider["name"],
-            "zone": zone_data["zone_id"],
-            "zone_name": zone_name,
-            "weather": weather,
-            "disruption_type": payout_info["disruption_type"],
-            "severity": payout_info["severity"],
-            "validation": {check: {"passed": passed, "detail": detail} for check, passed, detail in validation_checks},
-            "fraud_score": fraud_score,
-            "payout": {
-                "amount": payout_info["final_payout"],
-                "currency": "INR",
-                "method": "UPI",
-                "transaction_id": txn_id,
-                "status": "completed"
-            },
-            "decision": "APPROVED",
-            "processing_time_ms": random.randint(1200, 3800),
-            "llm_model": "groq/llama-3.1-70b",
-            "graph_nodes_executed": ["data_ingestion", "disruption_analyst", "fraud_validator", "actuarial_engine", "payout_processor"]
-        }
-        st.json(audit)
 
 # ─── Footer ──────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #6c757d; padding: 1rem;">
+<div style="text-align:center; color:#9ca3af; padding:0.5rem;">
     <b>InsureFlow AI</b> — Team HATS | Guidewire Hackathon 2026<br>
-    <small>Built with LangGraph + Groq + Scikit-learn + FastAPI + React</small><br>
+    <small>LangGraph + Groq + Scikit-learn + FastAPI + React</small><br>
     <small>Because gig workers deserve instant, fair, automated insurance.</small>
 </div>
 """, unsafe_allow_html=True)
