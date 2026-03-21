@@ -7,16 +7,16 @@ python-dotenv==1.0.0
 httpx==0.26.0
 
 # AI / LangGraph
-langgraph==0.0.40
-langchain==0.1.4
-langchain-groq==0.0.3
-langchain-core==0.1.17
+langgraph>=0.0.40
+langchain>=0.1.4
+langchain-groq>=0.0.1
+langchain-core>=0.1.46
 
 # Data & ML
-numpy==1.26.3
-pandas==2.1.4
-scikit-learn==1.4.0
-scipy==1.12.0
+numpy>=1.26.3
+pandas>=2.1.4
+scikit-learn>=1.4.0
+scipy>=1.12.0
 
 # Database
 sqlalchemy==2.0.25
@@ -28,8 +28,8 @@ geopy==2.4.1
 shapely==2.0.2
 
 # Visualization & Monitoring
-matplotlib==3.8.2
-plotly==5.18.0
+matplotlib>=3.8.2
+plotly>=5.18.0
 
 # Auth & Security
 python-jose==3.3.0
@@ -45,3 +45,6 @@ pytest-cov==4.1.0
 loguru==0.7.2
 tenacity==8.2.3
 apscheduler==3.10.4
+
+# Streamlit
+streamlit>=1.30.0
